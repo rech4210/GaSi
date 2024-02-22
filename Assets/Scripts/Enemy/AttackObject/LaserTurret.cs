@@ -6,9 +6,15 @@ public class LaserTurret : AttackFunc<LaserTurret>
 
     private void FixedUpdate()
     {
+        if (Player == null)
+        {
+            transform.rotation = Quaternion.identity;
+            return;
+        }
+
         transform.rotation = new Quaternion
-            (transform.rotation.x, ChaseTarget(_Player, this.gameObject).y
-            , transform.rotation.z, ChaseTarget(_Player, this.gameObject).w);
+            (transform.rotation.x, ChaseTarget(Player, this.gameObject).y
+            , transform.rotation.z, ChaseTarget(Player, this.gameObject).w);
     }
     public override void CalcStat(AttackStatus status, AttackCardInfo info)
     {
@@ -41,14 +47,22 @@ public class LaserTurret : AttackFunc<LaserTurret>
         while (true)
         {
             ExcuteAttack();
-            yield return new WaitForSeconds(_AttackStatus.duration);
+            yield return new WaitForSeconds(AttackStatus.duration);
         }
     }
     protected override void ExcuteAttack()
     {
+        if(Player == null)
+        {
+            return;
+        }
         var atkobj = Instantiate(attackObject,transform.position,Quaternion.identity);
-        atkobj.GetComponent<AtkObjStat<LaserObj>>().Initialize(_AttackStatus, sk_1, sk_2, sk_3);
-        atkobj.transform.position = _Player? _Player.transform.position : Vector3.zero;
+        atkobj.transform.position = Player? Player.transform.position : Vector3.zero;
+        atkobj.GetComponent<AtkObjStat<LaserObj>>().Initialize(AttackStatus, sk_1, sk_2, sk_3);
+        atkobj.GetComponent<AtkObjStat<LaserObj>>().SetDamageAction(() =>
+        {
+            playerInteraction.GetDamaged(_Point * 0.1f);
+        });
     }
 
     public override void TimeEvent(float time)

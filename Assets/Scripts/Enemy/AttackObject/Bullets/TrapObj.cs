@@ -1,3 +1,4 @@
+using KMS.Player.PlayerInteraction;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -33,7 +34,14 @@ public class TrapObj : AtkObjStat<TrapObj>, IUseSkill
         gameObject.GetComponent<MeshCollider>().isTrigger = true;
         gameObject.GetComponent<MeshRenderer>().material.color= Color.red;
     }
-
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.layer == LayerMask.NameToLayer("Player"))
+        {
+            damageAction.Invoke();
+            gameObject.SetActive(false);
+        }
+    }
 
     public void Skill()
     {

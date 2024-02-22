@@ -2,7 +2,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public abstract class Events<T> :MonoBehaviour, ISceneLoaded where T : Events<T>
+public abstract class Events<T> :MonoBehaviour where T : Events<T>
 {
     protected void Awake()
     {
@@ -32,8 +32,6 @@ public abstract class Events<T> :MonoBehaviour, ISceneLoaded where T : Events<T>
         OnExecute?.Invoke();
     }
 
-    public abstract void SceneManager_sceneLoaded(Scene arg0, LoadSceneMode arg1);
-    // Manager에서는 이를 구현하지 않는데, Event와 Manager 의 역할을 나눌게 아니면 하나로 통합하는게 맞다.
 }
 
 

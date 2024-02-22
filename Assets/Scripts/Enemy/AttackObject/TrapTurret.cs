@@ -5,10 +5,15 @@ public class TrapTurret : AttackFunc<TrapTurret> , IUseSkill
 {
     private void FixedUpdate()
     {
+        if (Player == null)
+        {
+            transform.rotation = Quaternion.identity;
+            return;
+        }
 
         transform.rotation = new Quaternion
-            (transform.rotation.x, ChaseTarget(_Player, this.gameObject).y
-            , transform.rotation.z, ChaseTarget(_Player, this.gameObject).w);
+            (transform.rotation.x, ChaseTarget(Player, this.gameObject).y
+            , transform.rotation.z, ChaseTarget(Player, this.gameObject).w);
     }
 
     public override void CalcStat(AttackStatus status, AttackCardInfo info)
@@ -41,15 +46,22 @@ public class TrapTurret : AttackFunc<TrapTurret> , IUseSkill
         while (true)
         {
             ExcuteAttack();
-            yield return new WaitForSeconds(_AttackStatus.duration);
+            yield return new WaitForSeconds(AttackStatus.duration);
         }
 
     }
     protected override void ExcuteAttack()
     {
-        //Instantiate(attackObject,transform);
+        if (Player == null)
+        {
+            return;
+        }
         var atkobj = Instantiate(attackObject);
-        atkobj.GetComponent<AtkObjStat<TrapObj>>().Initialize(_AttackStatus,sk_1,sk_2,sk_3);
+        atkobj.GetComponent<AtkObjStat<TrapObj>>().Initialize(AttackStatus,sk_1,sk_2,sk_3);
+        atkobj.GetComponent<AtkObjStat<TrapObj>>().SetDamageAction(() =>
+        {
+            playerInteraction.GetDamaged(_Point);
+        });
     }
 
     public override void TimeEvent(float time)

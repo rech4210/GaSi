@@ -1,3 +1,4 @@
+using KMS.Player.PlayerInteraction;
 using System.Collections;
 using UnityEngine;
 
@@ -11,6 +12,7 @@ public class BulletObj : AtkObjStat<BulletObj>,IUseSkill
         {
             Skill();
         }
+        lifeTime = 5f;
     }
 
     void Update()
@@ -21,5 +23,13 @@ public class BulletObj : AtkObjStat<BulletObj>,IUseSkill
     public void Skill()
     {
         throw new System.NotImplementedException();
+    }
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.layer == LayerMask.NameToLayer("Player"))
+        {
+            damageAction.Invoke();
+            gameObject.SetActive(false);
+        }
     }
 }

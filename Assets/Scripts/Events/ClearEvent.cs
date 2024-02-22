@@ -12,12 +12,6 @@ public class ClearEvent : Events<ClearEvent>, IEventHandler<ClearEvent>
     [SerializeField] private GameObject clearPopUp;
     bool isClear = false;
     public ClearFlag clearFlag = ClearFlag.notClear;
-    public override void SceneManager_sceneLoaded(Scene arg0, LoadSceneMode arg1)
-    {
-        clearPopUp.SetActive(false);
-        clearFlag = ClearFlag.notClear;
-        isClear = false;
-    }
 
     protected override void ActionInitiallize()
     {
@@ -46,7 +40,7 @@ public class ClearEvent : Events<ClearEvent>, IEventHandler<ClearEvent>
         Time.timeScale = 1f;
         // 이걸 쓰려면 타이머 초기화해야합니다
         //clearFlag = ClearFlag.notClear;
-        StageManager.Instance.SwitchStage();
+        //StageManager.Instance.SwitchStage();
     }
 
 

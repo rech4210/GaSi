@@ -4,10 +4,6 @@ using UnityEngine.SceneManagement;
 
 public class UIEvent : Events<UIEvent>
 {
-    public override void SceneManager_sceneLoaded(Scene arg0, LoadSceneMode arg1)
-    {
-        throw new System.NotImplementedException();
-    }
 
     protected override void ActionInitiallize()
     {

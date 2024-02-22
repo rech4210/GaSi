@@ -1,10 +1,5 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Reflection;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 public class AttackGenerator : MonoBehaviour
 {
@@ -16,13 +11,26 @@ public class AttackGenerator : MonoBehaviour
     private Dictionary<int, AttackStatus> containAttackDict = new();
 
     private GameObject attackTarget;
+    private List<IGetPlayer> getPlayerCommandList = new();
 
     private List<LaserTurret> laserList = new List<LaserTurret>();
     private List<TrapTurret> trapList = new List<TrapTurret>();
     private List<GuidedTurret> guidedList = new List<GuidedTurret>();
     private List<BulletTurret> bulletList = new List<BulletTurret>();
-    //private List<AbstractAttack> attackObjList;
 
+    private void Start()
+    {
+        allAttackStatArchive = DataManager.Instance.ReturnDict(allAttackStatArchive);
+        TracePlayerTransform();
+    }
+
+    private void Update()
+    {
+        if(attackTarget == null)
+        {
+            TracePlayerTransform();
+        }
+    }
     public void AddorUpdateAttackDictionary(int attackCode)
     {
         //과연 생성과 강화는 따로있는데 어떻게 딕셔너리 구분지어서 설정할건지?
@@ -47,31 +55,14 @@ public class AttackGenerator : MonoBehaviour
         return containAttackDict;
     }
 
-
-    private void Start()
+    private void TracePlayerTransform()
     {
-        allAttackStatArchive = DataManager.Instance.ReturnDict(allAttackStatArchive);
-        FindPlayer();
-    }
+        attackTarget = DataManager.Instance._playerTransform.gameObject;
+        getPlayerCommandList.ForEach((obj) =>
+        {
+             obj.GetPlayer(attackTarget);
+        });
 
-    protected void FindPlayer() //이부분을 수정해야함 (플레이어 찾기를 실시간으로)
-    {
-       // 플레이어 찾는건 스태틱으로 처리해도 될듯 .수정
-        try
-        {
-            attackTarget = DataManager.Instance._playerTransform.gameObject;
-            //if (GameObject.FindWithTag("Player").TryGetComponent<Player>(out Player player))
-            //{
-            //    // 게임오브젝트 컴포넌트 자체를 가져오려고 생긴 문제였음.
-            //    attackTarget = player.gameObject;
-            //    Debug.Log(attackTarget + "공격 대상");
-            //}
-        }
-        catch (NullReferenceException e)
-        {
-            Debug.Log("IsThere no player");
-            throw e;
-        }
     }
 
 
@@ -82,19 +73,24 @@ public class AttackGenerator : MonoBehaviour
     //    UnityEngine.Random.Range(0, 0),
     //    UnityEngine.Random.Range(4f, -23f));
     //}
+        //transform.localPosition = new Vector3(transform.localPosition.x, transform.localPosition.y+5f, transform.localPosition.z); 
 
     public void Generate<T>(AttackStatus status, AttackCardInfo info) where T : AttackFunc<T>
     {
-        transform.localPosition = new Vector3(transform.localPosition.x, transform.localPosition.y+5f, transform.localPosition.z); 
         var obj = Instantiate(attackObjectPrefab[(int)status.attackType], RandomPose(),this.transform.rotation,StageManager.Instance.GetCurrentStagePos());
+        var commandTarget = obj.GetComponent<IGetPlayer>();
+        getPlayerCommandList.Add(commandTarget);
+        Debug.Log(getPlayerCommandList.Count);
+        
         var component = obj? obj.GetComponent<AttackFunc<T>>() : null;
         
         component.Initalize(status,info,attackTarget); // 여기서 제대로 전달되는지 확인하자.
-        //TimeEvent.Instance.StoreTimeEventObj(obj);
         component.DeadAction(() =>
         {
             GetTurretList<T>(status).Remove(component as T);
-            obj.SetActive(false); // enable 시 제거 처리?
+            getPlayerCommandList.Remove(commandTarget);
+            TimeEvent.Instance.RemoveTimeEventObj(obj);
+            //obj.SetActive(false); // enable 시 제거 처리?
         });
 
         TimeEvent.Instance.StoreTimeEventObj(obj);
@@ -124,7 +120,7 @@ public class AttackGenerator : MonoBehaviour
 
     private void StoreList<T>(AttackFunc<T> attackFunc) where T : AttackFunc<T>
     {
-        GetTurretList<T>(attackFunc._AttackStatus).Add(attackFunc as T);
+        GetTurretList<T>(attackFunc.AttackStatus).Add(attackFunc as T);
     }
 
     private List<T> GetTurretList<T>(AttackStatus status) where T : AttackFunc<T>
@@ -143,5 +139,4 @@ public class AttackGenerator : MonoBehaviour
                 return null;
         }
     }
-
 }

@@ -10,7 +10,7 @@ public class LoadScene : MonoBehaviour
     
     private float time;
     public Slider slider;
-    private string sceneName = "MainScene";
+    private string sceneName = "02MainScene";
     [SerializeField] private GameObject LoadPopUp;
     
     async void Start()
@@ -25,14 +25,15 @@ public class LoadScene : MonoBehaviour
 
     private async UniTask<GameObject> GetData()
     {
-       var asset =  await Resources.LoadAsync<GameObject>(StringManager.Instance.buffData) as GameObject;
-         await UniTask.WaitUntil(() => asset != null);
+        var asset =  await Resources.LoadAsync<GameObject>(StringManager.Instance.buffData) as GameObject;
+        await UniTask.WaitUntil(() => asset != null);
         return asset;
     }
     IEnumerator LoadAsyncScene()
     {
         //여기서 에러가 뜸.
         AsyncOperation asyncOperation = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
+
         asyncOperation.allowSceneActivation = false;
 
         while(!asyncOperation.isDone)

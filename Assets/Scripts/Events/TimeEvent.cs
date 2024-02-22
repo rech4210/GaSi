@@ -29,27 +29,34 @@ public class TimeEvent : Events<TimeEvent>
     {
         //timeWorkTask = Task.Run(() => { SendMessagePerSecond();});
         perSecondTimeEventLists = new List<ITimeEvent>();
-        SceneManager.sceneLoaded += SceneManager_sceneLoaded;
+        //SceneManager.sceneLoaded += SceneManager_sceneLoaded;
 
     }
     // 이 부분 씬을 교체해야하나..? 아니면 onenable로 해야하나
-    public override void SceneManager_sceneLoaded(Scene arg0, LoadSceneMode arg1)
+    //public override void SceneManager_sceneLoaded(Scene arg0, LoadSceneMode arg1)
+    //{
+    //    perSecondTimeEventLists.Clear();
+    //    Debug.Log("scene cleared");
+    //}
+
+    public void StoreTimeEventObj(GameObject obj)
     {
-        perSecondTimeEventLists.Clear();
-        Debug.Log("scene cleared");
+        var eventObj = obj.GetComponent<ITimeEvent>();
+        perSecondTimeEventLists.Add(eventObj);
+        CurrentListData();
+    }
+    public void RemoveTimeEventObj(GameObject obj)
+    {
+        var eventObj = obj.GetComponent<ITimeEvent>();
+        perSecondTimeEventLists.Remove(eventObj);
+        CurrentListData();
     }
 
-    public void StoreTimeEventObj(GameObject @event)
+
+    public void CurrentListData()
     {
-        var target = @event.GetComponent<ITimeEvent>();
-        perSecondTimeEventLists.Add(target);
-        foreach (var item in perSecondTimeEventLists)
-        {
-            Debug.Log(item + " " + perSecondTimeEventLists.Count);
-        }
+        Debug.Log($"현재 타임 이벤트 요소의 개수 : {perSecondTimeEventLists.Count}");
     }
-
-
 
     // 초당 부르면 부담이 크지않을까?
     // 대상의 범위를 제한하거나, 초단위 호출이 아닌 다른 이벤트 호출 조건을 사용하여야 할듯하다.

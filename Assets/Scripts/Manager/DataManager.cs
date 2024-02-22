@@ -1,8 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
-using System;
-using UnityEngine.SceneManagement;
+using KMS.Player.playerData;
 
 public class DataManager : Manager<DataManager>, IGetDict<int,BuffData>,IGetDict<int,AttackData>, IGetDict<int,PlayerStatStruct>
 {

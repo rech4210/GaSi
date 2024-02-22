@@ -7,8 +7,8 @@ public class GuidedTurret : AttackFunc<GuidedTurret>
     private void FixedUpdate()
     {
         transform.rotation = new Quaternion
-            (transform.rotation.x, ChaseTarget(_Player, this.gameObject).y
-            , transform.rotation.z, ChaseTarget(_Player, this.gameObject).w);
+            (transform.rotation.x, ChaseTarget(Player, this.gameObject).y
+            , transform.rotation.z, ChaseTarget(Player, this.gameObject).w);
     }
     public override void CalcStat(AttackStatus status, AttackCardInfo info)
     {
@@ -37,7 +37,7 @@ public class GuidedTurret : AttackFunc<GuidedTurret>
         while (true)
         {
             ExcuteAttack();
-            yield return new WaitForSeconds(_AttackStatus.duration);
+            yield return new WaitForSeconds(AttackStatus.duration);
         }
 
     }

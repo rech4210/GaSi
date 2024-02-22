@@ -1,17 +1,24 @@
+using Cysharp.Threading.Tasks;
+using KMS.Player.playerData;
+using KMS.Player.PlayerInteraction;
 using System;
-using System.ComponentModel;
 using UnityEngine;
 
-public abstract class AttackFunc<T> : MonoBehaviour, ITimeEvent where T : AttackFunc<T>
+public abstract class AttackFunc<T> : MonoBehaviour, ITimeEvent, IGetPlayer where T : AttackFunc<T>
 {
     AttackCardInfo attackInfo;
     AttackStatus attackStatus;
+    protected PlayerInteraction playerInteraction;
+
+    [SerializeField] private GameObject player;
+    public GameObject Player { get { return player; }/* protected set { player = value; }*/}
 
     public void Initalize(AttackStatus status, AttackCardInfo info, GameObject attackTarget)
     {
-        _Player = attackTarget;
-        _AttackStatus = status;
-        _AttackCardInfo = info;
+        player = attackTarget;
+        AttackStatus = status;
+        AttackCardInfo = info;
+        playerInteraction = player.GetComponent<PlayerInteraction>();
         CalcStat(status,info);
     }
 
@@ -25,11 +32,11 @@ public abstract class AttackFunc<T> : MonoBehaviour, ITimeEvent where T : Attack
         Gizmos.color = Color.yellow;
         //var rotationMatrix = Matrix4x4.TRS(transform.position, transform.rotation, transform.lossyScale);
         //Gizmos.matrix = rotationMatrix;
-        Gizmos.DrawRay(this.transform.position, _Player.transform.position - transform.position);
+        Gizmos.DrawRay(this.transform.position, Player.transform.position - transform.position);
     }
 
-    public AttackCardInfo _AttackCardInfo { get => attackInfo; set => attackInfo = value; }
-    public AttackStatus _AttackStatus { get => attackStatus; set => attackStatus = value; }
+    public AttackCardInfo AttackCardInfo { get => attackInfo; set => attackInfo = value; }
+    public AttackStatus AttackStatus { get => attackStatus; set => attackStatus = value; }
 
     public int _Point { protected get { return attackStatus.point; } set { attackStatus.point = value; } }
     public float _Duration { protected get { return attackStatus.duration; } set { attackStatus.duration = value; } }
@@ -38,8 +45,7 @@ public abstract class AttackFunc<T> : MonoBehaviour, ITimeEvent where T : Attack
     public int _Rank { protected get { return attackStatus.rank; } set { attackStatus.rank = value; } }
 
 
-    [SerializeField] private GameObject player;
-    public GameObject _Player { protected get { return player; } set { player = value; } }
+
 
     // 이거 분리해야함.
     public abstract void CalcStat(AttackStatus status, AttackCardInfo info);
@@ -50,13 +56,6 @@ public abstract class AttackFunc<T> : MonoBehaviour, ITimeEvent where T : Attack
     }
 
     protected abstract void ExcuteAttack();
-
-    protected virtual void OnHited()
-    {
-        _Player.GetComponent<PlayerData>();
-    }
-
-    //public abstract ITimeEvent TimeEvent();
 
     public abstract void TimeEvent(float time);
 
@@ -75,8 +74,18 @@ public abstract class AttackFunc<T> : MonoBehaviour, ITimeEvent where T : Attack
         }
     }
 
-    public void DeadAction(Action action) { turretAction += action; }
+    public void DeadAction(Action action) { spawnerDeadAction = action; }
 
-    private Action turretAction;
+    protected Action spawnerDeadAction;
 
+    private void OnDisable()
+    {
+        //Destroy(gameObject);
+    }
+
+    public void GetPlayer(GameObject player)
+    {
+        this.player = player;
+        playerInteraction = player.GetComponent<PlayerInteraction>();
+    }
 }
